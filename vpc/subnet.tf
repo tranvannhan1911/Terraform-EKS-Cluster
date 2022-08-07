@@ -1,24 +1,24 @@
 resource "aws_subnet" "public_subnet" {
-  for_each          = toset(var.cidr_block_public_subnet)
-  vpc_id            = aws_vpc.eks_vpc.id
-  cidr_block        = each.value
-  availability_zone = data.aws_availability_zones.az.names[index(var.cidr_block_public_subnet, each.value)]
+  count                   = length(var.cidr_block_public_subnet)
+  vpc_id                  = aws_vpc.eks_vpc.id
+  cidr_block              = var.cidr_block_public_subnet[count.index]
+  availability_zone       = data.aws_availability_zones.az.names[count.index]
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "EKS public subnet ${index(var.cidr_block_public_subnet, each.value) + 1}"
+    Name                                        = "EKS public subnet ${count.index + 1}"
     "kubernetes.io/cluster/${var.cluster_name}" = "shared"
   }
 
 }
 
-# resource "aws_subnet" "private_subnet" {
-#   for_each          = toset(var.cidr_block_private_subnet)
-#   vpc_id            = aws_vpc.eks_vpc.id
-#   cidr_block        = each.value
-#   availability_zone = data.aws_availability_zones.az.names[index(var.cidr_block_private_subnet, each.value)]
+resource "aws_subnet" "private_subnet" {
+  count             = length(var.cidr_block_private_subnet)
+  vpc_id            = aws_vpc.eks_vpc.id
+  cidr_block        = var.cidr_block_private_subnet[count.index]
+  availability_zone = data.aws_availability_zones.az.names[count.index]
 
-#   tags = {
-#     Name = "EKS private subnet ${index(var.cidr_block_private_subnet, each.value) + 1}"
-#   }
-# }
+  tags = {
+    Name = "EKS private subnet ${count.index + 1}"
+  }
+}
