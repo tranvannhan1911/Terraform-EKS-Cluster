@@ -7,7 +7,9 @@ resource "aws_subnet" "public_subnet" {
 
   tags = {
     Name = "EKS public subnet ${index(var.cidr_block_public_subnet, each.value) + 1}"
+    "kubernetes.io/cluster/${var.cluster_name}" = "shared"
   }
+
 }
 
 # resource "aws_subnet" "private_subnet" {

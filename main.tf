@@ -4,6 +4,7 @@ module "vpc" {
   region = var.region
   cidr_block = var.cidr_block
   cidr_block_public_subnet = var.cidr_block_public_subnet
+  cluster_name = var.cluster_name
 }
 
 resource "aws_eks_cluster" "cluster" {
@@ -16,7 +17,7 @@ resource "aws_eks_cluster" "cluster" {
 
   depends_on = [
     aws_iam_role_policy_attachment.iam-role-AmazonEKSClusterPolicy,
-    # aws_iam_role_policy_attachment.iam-role-AmazonEKSVPCResourceController,
+    aws_iam_role_policy_attachment.iam-role-AmazonEKSVPCResourceController,
   ]
 }
 
@@ -28,13 +29,17 @@ resource "aws_eks_node_group" "node_group" {
 
   instance_types = ["t2.micro"]
 
-  launch_template {
-    id = aws_launch_template.launch_template.id
-    version = aws_launch_template.launch_template.latest_version
+  # launch_template {
+  #   id = aws_launch_template.launch_template.id
+  #   version = aws_launch_template.launch_template.latest_version
+  # }
+
+  remote_access {
+    ec2_ssh_key = aws_key_pair.node_group_keypair.key_name
   }
 
   scaling_config {
-    desired_size = 2
+    desired_size = 3
     max_size     = 3
     min_size     = 1
   }
