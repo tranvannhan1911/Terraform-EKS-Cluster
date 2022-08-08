@@ -4,7 +4,12 @@ module "vpc" {
   region                   = var.region
   cidr_block               = var.cidr_block
   cidr_block_public_subnet = var.cidr_block_public_subnet
-  cluster_name             = var.cluster_name
+  # cluster_name             = var.cluster_name
+}
+
+resource "aws_key_pair" "node_group_keypair" {
+  key_name   = "node_group_keypair"
+  public_key = file("node_group_keypair.pub")
 }
 
 resource "aws_eks_cluster" "cluster" {
@@ -40,8 +45,8 @@ resource "aws_eks_node_group" "node_group" {
 
   scaling_config {
     desired_size = 3
-    max_size     = 3
-    min_size     = 1
+    max_size     = 5
+    min_size     = 3
   }
 
   update_config {
